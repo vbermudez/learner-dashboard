@@ -8,7 +8,7 @@ export const RESOURCE_CATALOG: LearningResource[] = [
     description:
       'Drop an exported .h5p package URL here. Use this card as a template for H5P activities learners can carry offline.',
     estimatedSize: '20-120 MB',
-    packageUrl: 'https://1drv.ms/u/c/d7b96adfeee8b80c/IQDU19GEGnlTSrO4b1uOhkMSAZZFBEl2JTHl15YEGA9eK3o?e=Vtsph1&download=1',
+    packageUrl: 'https://learner-dashboard-poc.netlify.app/packages/course-presentation-21-21180.h5p',
     launchUrl: 'https://h5p.org/h5p/embed/612',
     tags: ['H5P', 'interactive', 'compliance'],
   },
