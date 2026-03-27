@@ -1,0 +1,224 @@
+<main class="dashboard-shell">
+  <section class="hero">
+    <div class="hero__copy">
+      <p class="eyebrow">Offline Learning Hub</p>
+      <h1>{{ title }}</h1>
+      <p>
+        Download learning resources to this device, keep training when there is no connectivity, and launch
+        cached packages directly from the learner dashboard.
+      </p>
+    </div>
+
+    <aside class="hero__stats" aria-label="Learner sync metrics">
+      <div class="stat">
+        <span>Catalog</span>
+        <strong>{{ totalResources() }}</strong>
+      </div>
+      <div class="stat">
+        <span>Downloaded</span>
+        <strong>{{ downloadedResources() }}</strong>
+      </div>
+      <div class="stat">
+        <span>Completion</span>
+        <strong>{{ completionRate() }}%</strong>
+      </div>
+      <div class="status-pill" [class.status-pill--offline]="!online()">
+        @if (online()) {
+          <span>Online</span>
+        } @else {
+          <span>Offline</span>
+        }
+      </div>
+      @if (!isInstalled()) {
+        <button type="button" class="install-button" (click)="installOrLaunchApp()">
+          {{ installStateLabel() }}
+        </button>
+      }
+      <p class="install-hint">
+        @if (isInstalled()) {
+          Installed on this device.
+        } @else if (canInstall()) {
+          Ready to install as a desktop/mobile app.
+        } @else {
+          Open app entry point. Install becomes available when supported.
+        }
+      </p>
+    </aside>
+  </section>
+
+  <section class="resource-grid" aria-label="Learner resources">
+    @for (resource of resources(); track resource.id) {
+      <article class="resource-card" [attr.data-state]="resource.state" [attr.data-kind]="resource.kind">
+        <header class="resource-card__header">
+          <div>
+            <h2>{{ resource.title }}</h2>
+            <p>{{ resource.description }}</p>
+          </div>
+          <span class="kind-chip">{{ resource.kind | uppercase }}</span>
+        </header>
+
+        <div class="meta-row">
+          <span>Estimated size: {{ resource.estimatedSize }}</span>
+          <span class="state-pill">{{ resource.state }}</span>
+        </div>
+
+        <div class="tag-row">
+          @for (tag of resource.tags; track tag) {
+            <span>{{ tag }}</span>
+          }
+        </div>
+
+        <label class="field">
+          <span>Package URL</span>
+          <input
+            type="url"
+            [ngModel]="resource.packageUrl"
+            (ngModelChange)="updatePackageUrl(resource.id, $event)"
+            placeholder="https://cdn.example.com/course/package.zip"
+            autocomplete="off"
+          />
+        </label>
+
+        <label class="field">
+          <span>Launch URL (optional)</span>
+          <input
+            type="url"
+            [ngModel]="resource.launchUrl"
+            (ngModelChange)="updateLaunchUrl(resource.id, $event)"
+            placeholder="https://lms.example.com/launch?id=course"
+            autocomplete="off"
+          />
+        </label>
+
+        @if (resource.kind === 'h5p' || resource.kind === 'scorm' || resource.kind === 'tincan') {
+          <div class="runtime-panel">
+            <div class="runtime-panel__head">
+              <span>Runtime adapter</span>
+              <div class="runtime-actions">
+                <button
+                  type="button"
+                  class="ghost"
+                  (click)="prepareRuntime(resource.id)"
+                  [disabled]="resource.runtimeStatus === 'analyzing'"
+                >
+                  Prepare Runtime
+                </button>
+                <button
+                  type="button"
+                  class="ghost"
+                  (click)="detectRuntime(resource.id)"
+                  [disabled]="resource.runtimeStatus === 'analyzing'"
+                >
+                  @if (resource.runtimeStatus === 'analyzing') {
+                    Detecting...
+                  } @else {
+                    Local Detect
+                  }
+                </button>
+              </div>
+            </div>
+
+            @if (resource.runtimeMessage) {
+              <p class="runtime-copy">{{ resource.runtimeMessage }}</p>
+            }
+
+            @if (resource.detectedLaunchPath) {
+              <p class="runtime-path">Detected launch path: {{ resource.detectedLaunchPath }}</p>
+            }
+
+            @if (canApplyDetectedLaunch(resource)) {
+              <button type="button" class="ghost" (click)="applyDetectedLaunch(resource.id)">
+                Apply Detected Launch URL
+              </button>
+            }
+          </div>
+        }
+
+        <div class="progress-panel" [class.progress-panel--active]="resource.state === 'downloading'">
+          <div class="progress-copy">
+            <span>
+              @if (resource.totalBytes) {
+                {{ formatBytes(resource.downloadedBytes) }} / {{ formatBytes(resource.totalBytes) }}
+              } @else {
+                {{ formatBytes(resource.downloadedBytes) }}
+              }
+            </span>
+            <span>{{ resource.progress }}%</span>
+          </div>
+          <div class="meter" role="progressbar" [attr.aria-valuenow]="resource.progress" aria-valuemin="0" aria-valuemax="100">
+            <div class="meter__value" [style.width.%]="resource.progress"></div>
+          </div>
+          @if (resource.lastError) {
+            <p class="error-copy">{{ resource.lastError }}</p>
+          }
+          @if (resource.nextRetryAt) {
+            <p class="retry-copy">
+              Retry attempt {{ resource.retryAttempt }} queued for {{ retryTimeLabel(resource.nextRetryAt) }}
+            </p>
+          }
+        </div>
+
+        <footer class="actions">
+          <button type="button" (click)="downloadResource(resource.id)" [disabled]="resource.state === 'downloading'">
+            Download
+          </button>
+          <button type="button" class="ghost" (click)="openResource(resource.id)">
+            Play/Open
+          </button>
+          <button type="button" class="ghost danger" (click)="removeDownload(resource.id)">
+            Remove
+          </button>
+        </footer>
+      </article>
+    }
+  </section>
+
+  <section class="notes">
+    <h3>Package Integration Notes</h3>
+    <ul>
+      <li>H5P, TinCan, and SCORM now use package-specific player handling from Play/Open.</li>
+      <li>Interrupted downloads are automatically queued and retried with exponential backoff.</li>
+      <li>The app stores package binaries in cache for offline learner access.</li>
+    </ul>
+  </section>
+</main>
+
+@if (activePlayer(); as player) {
+  <section class="player-overlay" aria-label="Resource player">
+    <article class="player-modal">
+      <header class="player-modal__header">
+        <div>
+          <p class="eyebrow">{{ player.kind | uppercase }} PLAYER</p>
+          <h3>{{ player.title }}</h3>
+          <p class="player-origin">Source: {{ player.sourceOrigin }}</p>
+        </div>
+        <button type="button" class="ghost" (click)="closePlayer()">Close</button>
+      </header>
+
+      @if (player.hint) {
+        <p class="player-hint">{{ player.hint }}</p>
+      }
+
+      @if (isMediaPlayer(player)) {
+        <video class="player-media" controls [src]="player.sourceUrl"></video>
+      } @else if (isFramePlayer(player)) {
+        <iframe
+          class="player-frame"
+          [src]="trustResourceUrl(player.sourceUrl)"
+          title="Learning package frame"
+        ></iframe>
+      } @else {
+        <div class="package-panel">
+          <p>
+            This package is available offline, but it needs a Launch URL to run as a full embedded learning runtime.
+          </p>
+          <a [href]="player.sourceUrl" target="_blank" rel="noopener noreferrer">Open package source</a>
+        </div>
+      }
+
+      <footer class="player-actions">
+        <button type="button" (click)="openPlayerInTab()">Open in new tab</button>
+      </footer>
+    </article>
+  </section>
+}

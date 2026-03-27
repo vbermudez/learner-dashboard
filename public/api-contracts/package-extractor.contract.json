@@ -1,0 +1,24 @@
+{
+  "endpoint": "POST /api/package-extractor/extract",
+  "contentType": "multipart/form-data",
+  "request": {
+    "fields": [
+      { "name": "package", "type": "file", "required": true },
+      { "name": "resourceId", "type": "string", "required": true },
+      { "name": "resourceKind", "type": "string", "required": true, "allowedValues": ["h5p", "scorm", "tincan"] },
+      { "name": "originalUrl", "type": "string", "required": false }
+    ]
+  },
+  "response": {
+    "packageId": "pkg_01J...",
+    "contentBaseUrl": "https://cdn.example.com/extracted/pkg_01J.../",
+    "manifestType": "scorm",
+    "recommendedLaunchPath": "index_lms.html",
+    "recommendedLaunchUrl": "https://cdn.example.com/extracted/pkg_01J.../index_lms.html",
+    "launchCandidates": [
+      { "path": "index_lms.html", "score": 0.96 },
+      { "path": "story.html", "score": 0.72 }
+    ],
+    "expiresAt": "2026-12-01T12:00:00.000Z"
+  }
+}
