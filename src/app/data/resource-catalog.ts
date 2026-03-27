@@ -8,7 +8,7 @@ export const RESOURCE_CATALOG: LearningResource[] = [
     description:
       'Drop an exported .h5p package URL here. Use this card as a template for H5P activities learners can carry offline.',
     estimatedSize: '20-120 MB',
-    packageUrl: 'https://cdn.example.com/h5p/intro-to-product-safety.h5p',
+    packageUrl: 'https://1drv.ms/u/c/d7b96adfeee8b80c/IQDU19GEGnlTSrO4b1uOhkMSAZZFBEl2JTHl15YEGA9eK3o?e=Vtsph1',
     launchUrl: 'https://h5p.org/h5p/embed/612',
     tags: ['H5P', 'interactive', 'compliance'],
   },
@@ -19,8 +19,8 @@ export const RESOURCE_CATALOG: LearningResource[] = [
     description:
       'Paste a TinCan package zip URL plus an optional launch URL from your LMS or LRS-compatible delivery endpoint.',
     estimatedSize: '50-200 MB',
-    packageUrl: 'https://cdn.example.com/xapi/sales-simulation.zip',
-    launchUrl: 'https://content.example.com/xapi/sales-simulation/index.html',
+    packageUrl: '',
+    launchUrl: '',
     tags: ['xAPI', 'TinCan', 'simulation'],
   },
   {
@@ -41,8 +41,8 @@ export const RESOURCE_CATALOG: LearningResource[] = [
     description:
       'Real downloadable sample for testing progress and offline cache. Replace with your LMS-hosted lesson package.',
     estimatedSize: '1-5 MB',
-    packageUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-    launchUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    packageUrl: 'https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf',
+    launchUrl: 'https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf',
     tags: ['sample', 'download-ready'],
   },
   {
